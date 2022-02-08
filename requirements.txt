@@ -1,0 +1,5 @@
+Please run the program in the following environment:
+  <target-environment>
+  
+List of all necessary packages:
+...
