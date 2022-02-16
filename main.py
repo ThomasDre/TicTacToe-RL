@@ -2,14 +2,15 @@
 Reinforcement Learning for TicTacToe
 
 Usage:
-    main.py --learn [--episodes=<num>] [--sparring=<partner>] [--agent=<name>]
+    main.py --learn [--episodes=<num>] [--sparring=<partner>] [--agent=<name>] [--q | --mc]
     main.py --play [--opponent=<name>]
 
 Options:
     -h --help               Show this screen
     --learn                 Train a new agent
     --play                  Play against an agent
-    --algo=<choice>         Which RL algorithm to use
+    --q                     Use Q-Learning
+    --mc                    Use Monte-Carlo
     --episodes=<num>        Number of episodes to use for training
     --sparring=<partner>    Bot against which the agent plays during the learning
     --agent=<name>          Name of the agent (file)
@@ -19,10 +20,29 @@ Options:
 import sys, pygame
 import tkinter as tk
 from docopt import docopt
+import functools
+from learning import q_learning, mc_learning
+from tictactoe import TicTacToe
 
+game = TicTacToe()
+
+# Makes the cell big daddy size
 cell = """                   
                    
                    """
+
+
+# callback for the 9 tic tac toe fields
+def cell_clicked(event, param):
+    x = param[0]
+    y = param[1]
+
+    dummy = True if game.active_player == 'X' else False
+
+    status = game.set_cell(dummy, x, y)
+    print(game.board)
+    print(game.check_game())
+    print(status)
 
 
 def start_game():
@@ -31,7 +51,6 @@ def start_game():
     # screen = pygame.display.set_mode(size)
     # while 1:
     #     1 + 1
-
 
     window = tk.Tk()
 
@@ -51,11 +70,10 @@ def start_game():
             frame.grid(row=i,column=j)
             label = tk.Label(master=frame, text=cell)
             label.pack()
+            label.bind('<Button-1>', functools.partial(cell_clicked, param=(i,j)))
+    
 
     window.mainloop()
-
-def training():
-    pass
 
 
 
@@ -64,7 +82,24 @@ if __name__ == "__main__":
     
     arguments = docopt(__doc__)
 
-    if arguments['play']:
+    if arguments['--play']:
         start_game()
-    if arguments['learn']:
-        training()
+    if arguments['--learn']:
+        episodes = 10000
+        # TODO Implement A Bot
+        sparring_partner = 'DUMMY SPARRING PARTNER'
+        # TODO Use this name, to be able to save different agents
+        name = 'DUMMY AGENT NAME'
+        algorithm = q_learning
+
+        # set non default parameters
+        if arguments['--episodes']:
+            episodes = int(arguments['--episodes'])
+        if arguments['--sparring']:
+            sparring_partner = arguments['--sparring']
+        if arguments['--agent']:
+            name = arguments['--agent']
+        if arguments['--mc']:
+            algorithm = mc_learning
+
+        algorithm(episodes, sparring_partner, name)
