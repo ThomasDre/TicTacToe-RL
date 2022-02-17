@@ -22,7 +22,8 @@ import tkinter as tk
 from docopt import docopt
 import functools
 from learning import q_learning, mc_learning
-from tictactoe import TicTacToe
+from tictactoe import TicTacToe, X_PLAYER, O_PLAYER
+from bot import DummyBot
 
 game = TicTacToe()
 
@@ -39,7 +40,7 @@ def cell_clicked(event, param):
 
     dummy = True if game.active_player == 'X' else False
 
-    status = game.set_cell(dummy, x, y)
+    status = game.set_cell(dummy, X_PLAYER, x, y)
     print(game.board)
     print(game.check_game())
     print(status)
@@ -87,7 +88,7 @@ if __name__ == "__main__":
     if arguments['--learn']:
         episodes = 10000
         # TODO Implement A Bot
-        sparring_partner = 'DUMMY SPARRING PARTNER'
+        sparring_partner = DummyBot()
         # TODO Use this name, to be able to save different agents
         name = 'DUMMY AGENT NAME'
         algorithm = q_learning
@@ -95,11 +96,9 @@ if __name__ == "__main__":
         # set non default parameters
         if arguments['--episodes']:
             episodes = int(arguments['--episodes'])
-        if arguments['--sparring']:
-            sparring_partner = arguments['--sparring']
         if arguments['--agent']:
             name = arguments['--agent']
         if arguments['--mc']:
             algorithm = mc_learning
 
-        algorithm(episodes, sparring_partner, name)
+        algorithm(game, episodes, sparring_partner, name)
